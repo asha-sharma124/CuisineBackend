@@ -53,6 +53,17 @@ jobs:
             echo "Upgrading pip, setuptools, and wheel..."
             pip install --upgrade pip setuptools wheel
 
+            # Uninstall psycopg or psycopg2 if installed
+            echo "Checking if psycopg or psycopg2 is installed..."
+            if pip show psycopg > /dev/null 2>&1; then
+              echo "Uninstalling existing psycopg..."
+              pip uninstall -y psycopg
+            fi
+            if pip show psycopg2 > /dev/null 2>&1; then
+              echo "Uninstalling existing psycopg2..."
+              pip uninstall -y psycopg2 psycopg2-binary
+            fi
+
             echo "Installing project dependencies from requirements.txt..."
             pip install -r requirements.txt
 
