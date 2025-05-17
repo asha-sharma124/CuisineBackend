@@ -47,7 +47,9 @@ INSTALLED_APPS = [
     'orders',
 ]
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server URL
+    "http://localhost:3000",
+      "http://cuisinebucketfinal.s3-website.ap-south-1.amazonaws.com", 
+       "http://cuisinestaging.s3-website.ap-south-1.amazonaws.com" # React dev server URL
 ]
 
 
@@ -170,6 +172,8 @@ import os
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
