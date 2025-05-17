@@ -79,7 +79,7 @@ jobs:
 
             echo "Restarting Django service..."
             sudo systemctl daemon-reload
-            sudo systemctl restart foodsite
+            sudo systemctl restart foodsite.service
 
             echo "✅ Deployment completed successfully!"
           EOF
