@@ -49,7 +49,7 @@ jobs:
 
             echo "Activating virtual environment..."
             source venv/bin/activate
-            pip install "psycopg[binary]"
+            pip3 install "psycopg[binary]"
             echo "Upgrading pip, setuptools, and wheel..."
             pip install --upgrade pip setuptools wheel
 
