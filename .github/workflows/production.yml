@@ -31,12 +31,19 @@ jobs:
             sudo apt update
             sudo apt install -y python3 python3-venv python3-pip libpq-dev build-essential
             cd ${{ secrets.EC2_PROJECT_DIR }}
+            # Remove old virtualenv if exists (optional)
+            rm -rf venv
             python3 -m venv venv
             source venv/bin/activate
             pip install --upgrade pip setuptools wheel
             pip install -r requirements.txt
+
+            # Verify psycopg2 installation by importing it
+            python -c "import psycopg2" || { echo 'psycopg2 import failed'; exit 1; }
+
             python manage.py migrate
             python manage.py collectstatic --noinput
+
             sudo systemctl daemon-reload
             sudo systemctl restart foodsite
-          EOF
+            EOF
