@@ -27,4 +27,4 @@ urllib3==2.4.0
 razorpay
 setuptools
 dotenv
-psycopg2-binary
+psycopg2-binary>=2.9
