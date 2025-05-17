@@ -43,13 +43,13 @@ jobs:
 
             echo "Removing old virtual environment if exists..."
             rm -rf venv
-
+            
             echo "Creating new virtual environment with Python 3.12..."
             python3.12 -m venv venv
 
             echo "Activating virtual environment..."
             source venv/bin/activate
-
+            pip install "psycopg[binary]"
             echo "Upgrading pip, setuptools, and wheel..."
             pip install --upgrade pip setuptools wheel
 
