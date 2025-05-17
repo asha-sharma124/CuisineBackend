@@ -28,22 +28,40 @@ jobs:
           ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e
+
+            echo "Updating system packages..."
             sudo apt update
             sudo apt install -y python3 python3-venv python3-pip libpq-dev build-essential
+
             cd ${{ secrets.EC2_PROJECT_DIR }}
-            # Remove old virtualenv if exists (optional)
+
+            echo "Removing old virtual environment if exists..."
             rm -rf venv
+
+            echo "Creating new virtual environment..."
             python3 -m venv venv
+
+            echo "Activating virtual environment..."
             source venv/bin/activate
+
+            echo "Upgrading pip, setuptools, wheel..."
             pip install --upgrade pip setuptools wheel
+
+            echo "Installing project dependencies..."
             pip install -r requirements.txt
 
-            # Verify psycopg2 installation by importing it
-            python -c "import psycopg2" || { echo 'psycopg2 import failed'; exit 1; }
+            echo "Verifying psycopg2 installation..."
+            python -c "import psycopg2" || { echo 'ERROR: psycopg2 module not found'; exit 1; }
 
+            echo "Applying database migrations..."
             python manage.py migrate
+
+            echo "Collecting static files..."
             python manage.py collectstatic --noinput
 
+            echo "Reloading and restarting the Django service..."
             sudo systemctl daemon-reload
             sudo systemctl restart foodsite
+
+            echo "Deployment completed successfully!"
             EOF
