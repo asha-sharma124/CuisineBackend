@@ -23,9 +23,9 @@
 # sqlparse==0.5.3
 # tzdata==2025.2
 # urllib3==2.4.0
-# razorpay==1.4.2
-# python-dotenv==1.1.0
-# psycopg2-binary>=2.9
+razorpay==1.4.2
+python-dotenv==1.1.0
+psycopg[binary]==3.1.18
 
 asgiref==3.8.1
 certifi==2025.1.31
