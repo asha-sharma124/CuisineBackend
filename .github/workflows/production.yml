@@ -31,10 +31,10 @@ jobs:
       - name: SSH into EC2 and deploy
         run: |
           ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
             set -e
 
-            echo "Installing Python 3.12 and pip..."
+            echo "Installing Python 3.12 and dependencies..."
             sudo add-apt-repository -y ppa:deadsnakes/ppa
             sudo apt update
             sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip libpq-dev build-essential
@@ -43,21 +43,21 @@ jobs:
 
             echo "Removing old virtual environment if exists..."
             rm -rf venv
-            
+
             echo "Creating new virtual environment with Python 3.12..."
             python3.12 -m venv venv
 
             echo "Activating virtual environment..."
             source venv/bin/activate
-            pip3 install "psycopg[binary]"
+
             echo "Upgrading pip, setuptools, and wheel..."
             pip install --upgrade pip setuptools wheel
 
             echo "Installing project dependencies from requirements.txt..."
             pip install -r requirements.txt
 
-            echo "Verifying psycopg2 installation..."
-            python -c "import psycopg2" || { echo 'ERROR: psycopg2 module not found'; exit 1; }
+            echo "Verifying psycopg installation..."
+            python -c "import psycopg" || { echo 'ERROR: psycopg module not found'; exit 1; }
 
             echo "Applying database migrations..."
             python manage.py migrate
