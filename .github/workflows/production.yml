@@ -31,7 +31,7 @@ jobs:
       - name: SSH into EC2 and deploy
         run: |
           ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e
 
             echo "Installing Python 3.12 and dependencies..."
@@ -45,36 +45,32 @@ jobs:
             rm -rf venv
 
             echo "Creating new virtual environment with Python 3.12..."
-            python3 -m venv venv
+            python3.12 -m venv venv
 
             echo "Activating virtual environment..."
             source venv/bin/activate
 
             echo "Upgrading pip, setuptools, and wheel..."
-            pip install --upgrade pip setuptools wheel
+            venv/bin/pip install --upgrade pip setuptools wheel
 
-            # Uninstall psycopg or psycopg2 if installed
-            echo "Checking if psycopg or psycopg2 is installed..."
-            if pip show psycopg > /dev/null 2>&1; then
-              echo "Uninstalling existing psycopg..."
-              pip uninstall -y psycopg
-            fi
-            if pip show psycopg2 > /dev/null 2>&1; then
-              echo "Uninstalling existing psycopg2..."
-              pip uninstall -y psycopg2 psycopg2-binary
-            fi
+            echo "Uninstalling existing psycopg or psycopg2 (if any)..."
+            venv/bin/pip show psycopg && venv/bin/pip uninstall -y psycopg || true
+            venv/bin/pip show psycopg2 && venv/bin/pip uninstall -y psycopg2 psycopg2-binary || true
+
+            echo "Installing psycopg with binary extras..."
+            venv/bin/pip install "psycopg[binary]"
 
             echo "Installing project dependencies from requirements.txt..."
-            pip install -r requirements.txt
+            venv/bin/pip install -r requirements.txt
 
-            echo "Verifying psycopg installation..."
-            python -c "import psycopg" || { echo 'ERROR: psycopg module not found'; exit 1; }
+            echo "Verifying psycopg import..."
+            venv/bin/python -c "import psycopg" || { echo 'ERROR: psycopg module not found'; exit 1; }
 
-            echo "Applying database migrations..."
-            python manage.py migrate
+            echo "Running Django database migrations..."
+            venv/bin/python manage.py migrate
 
             echo "Collecting static files..."
-            python manage.py collectstatic --noinput
+            venv/bin/python manage.py collectstatic --noinput
 
             echo "Restarting Django service..."
             sudo systemctl daemon-reload
