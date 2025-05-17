@@ -31,6 +31,8 @@ jobs:
 
             echo "Updating system packages..."
             sudo apt update
+
+            echo "Installing system dependencies required for psycopg2..."
             sudo apt install -y python3 python3-venv python3-pip libpq-dev build-essential
 
             cd ${{ secrets.EC2_PROJECT_DIR }}
@@ -44,7 +46,7 @@ jobs:
             echo "Activating virtual environment..."
             source venv/bin/activate
 
-            echo "Upgrading pip, setuptools, wheel..."
+            echo "Upgrading pip, setuptools, and wheel..."
             pip install --upgrade pip setuptools wheel
 
             echo "Installing project dependencies..."
