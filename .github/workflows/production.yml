@@ -33,18 +33,13 @@ jobs:
           ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e
-
-            cd ${{ secrets.EC2_PROJECT_DIR }}
-
-            echo "Resetting any local changes and pulling latest code..."
-            git reset --hard HEAD
-            git clean -fd
             git pull origin main
-
             echo "Installing Python 3.12 and dependencies..."
             sudo add-apt-repository -y ppa:deadsnakes/ppa
             sudo apt update
             sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip libpq-dev build-essential
+
+            cd ${{ secrets.EC2_PROJECT_DIR }}
 
             echo "Removing old virtual environment if exists..."
             rm -rf venv
@@ -75,11 +70,12 @@ jobs:
             venv/bin/python manage.py migrate
 
             echo "Exporting DJANGO_SETTINGS_MODULE..."
-            export DJANGO_SETTINGS_MODULE=foodsite.settings  # Update if needed
+            export DJANGO_SETTINGS_MODULE=foodsite.settings  # <-- Replace with your correct settings path
 
+            
             echo "Restarting Django service..."
             sudo systemctl daemon-reload
-            sudo systemctl restart foodsite.service
+            sudo systemctl restart foodsite
 
             echo "✅ Deployment completed successfully!"
           EOF
