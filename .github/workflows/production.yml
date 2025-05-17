@@ -72,12 +72,7 @@ jobs:
             echo "Exporting DJANGO_SETTINGS_MODULE..."
             export DJANGO_SETTINGS_MODULE=foodsite.settings  # <-- Replace with your correct settings path
 
-            echo "Checking STATIC_ROOT value..."
-            venv/bin/python -c "from django.conf import settings; print('STATIC_ROOT =', settings.STATIC_ROOT)"
-
-            echo "Collecting static files..."
-            venv/bin/python manage.py collectstatic --noinput
-
+            
             echo "Restarting Django service..."
             sudo systemctl daemon-reload
             sudo systemctl restart foodsite
