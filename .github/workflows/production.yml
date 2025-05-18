@@ -16,6 +16,8 @@ jobs:
           chmod 600 ec2_key.pem
 
       - name: SSH into EC2 and deploy
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
@@ -26,8 +28,7 @@ jobs:
             sudo apt update
             sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip libpq-dev build-essential git
 
-            # GitHub repo and destination
-            REPO_URL="https://${secrets.PAT_TOKEN}@github.com/asha-sharma124/CuisineBackend.git"
+            REPO_URL="https://${PAT_TOKEN}@github.com/asha-sharma124/CuisineBackend.git"
             PROJECT_DIR="${{ secrets.EC2_PROJECT_DIR }}"
 
             if [ ! -d "$PROJECT_DIR/.git" ]; then
@@ -37,7 +38,7 @@ jobs:
               echo "Pulling latest changes..."
               cd $PROJECT_DIR
               git reset --hard
-              git pull origin main
+              git pull $REPO_URL
             fi
 
             cd $PROJECT_DIR
@@ -71,7 +72,7 @@ jobs:
             venv/bin/python manage.py migrate
 
             echo "Exporting DJANGO_SETTINGS_MODULE..."
-            export DJANGO_SETTINGS_MODULE=foodsite.settings  # Update if your settings path is different
+            export DJANGO_SETTINGS_MODULE=foodsite.settings
 
             echo "Restarting Django service..."
             sudo systemctl daemon-reload
