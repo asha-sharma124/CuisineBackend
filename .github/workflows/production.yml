@@ -28,7 +28,9 @@ jobs:
             sudo apt update
             sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip libpq-dev build-essential git
 
-            REPO_URL="https://${PAT_TOKEN}@github.com/asha-sharma124/CuisineBackend.git"
+            export PAT_TOKEN=$PAT_TOKEN
+
+            REPO_URL="https://$PAT_TOKEN@github.com/asha-sharma124/CuisineBackend.git"
             PROJECT_DIR="${{ secrets.EC2_PROJECT_DIR }}"
 
             if [ ! -d "$PROJECT_DIR/.git" ]; then
@@ -72,7 +74,7 @@ jobs:
             venv/bin/python manage.py migrate
 
             echo "Exporting DJANGO_SETTINGS_MODULE..."
-            export DJANGO_SETTINGS_MODULE=foodsite.settings
+            export DJANGO_SETTINGS_MODULE=foodsite.settings  # Update if your settings path is different
 
             echo "Restarting Django service..."
             sudo systemctl daemon-reload
