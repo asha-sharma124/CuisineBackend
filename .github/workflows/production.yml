@@ -27,7 +27,7 @@ jobs:
             sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip libpq-dev build-essential git
 
             # GitHub repo and destination
-            REPO_URL="https://github.com/asha-sharma124/CuisineBackend.git"
+            REPO_URL="https://${secrets.PAT_TOKEN}@github.com/asha-sharma124/CuisineBackend.git"
             PROJECT_DIR="${{ secrets.EC2_PROJECT_DIR }}"
 
             if [ ! -d "$PROJECT_DIR/.git" ]; then
