@@ -26,10 +26,19 @@ jobs:
             sudo apt update
             sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip libpq-dev build-essential git
 
-            # Directory where your project should live on EC2
+            # GitHub repo and destination
+            REPO_URL="https://github.com/asha-sharma124/CuisineBackend.git"
             PROJECT_DIR="${{ secrets.EC2_PROJECT_DIR }}"
 
-           
+            if [ ! -d "$PROJECT_DIR/.git" ]; then
+              echo "Cloning repository..."
+              git clone $REPO_URL $PROJECT_DIR
+            else
+              echo "Pulling latest changes..."
+              cd $PROJECT_DIR
+              git reset --hard
+              git pull origin main
+            fi
 
             cd $PROJECT_DIR
 
@@ -55,8 +64,14 @@ jobs:
             echo "Installing project dependencies from requirements.txt..."
             venv/bin/pip install -r requirements.txt
 
+            echo "Verifying psycopg import..."
+            venv/bin/python -c "import psycopg" || { echo 'ERROR: psycopg module not found'; exit 1; }
+
             echo "Running Django database migrations..."
             venv/bin/python manage.py migrate
+
+            echo "Exporting DJANGO_SETTINGS_MODULE..."
+            export DJANGO_SETTINGS_MODULE=foodsite.settings  # Update if your settings path is different
 
             echo "Restarting Django service..."
             sudo systemctl daemon-reload
