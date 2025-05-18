@@ -29,18 +29,7 @@ jobs:
             # Directory where your project should live on EC2
             PROJECT_DIR="${{ secrets.EC2_PROJECT_DIR }}"
 
-            # Your Git repo URL - replace with your repo SSH or HTTPS URL
-            REPO_URL="git@github.com:asha-sharma124/CuisineBackend.git"
-
-            if [ ! -d "$PROJECT_DIR/.git" ]; then
-              echo "Cloning repository..."
-              git clone $REPO_URL $PROJECT_DIR
-            else
-              echo "Pulling latest changes..."
-              cd $PROJECT_DIR
-              git reset --hard
-              git pull origin main
-            fi
+           
 
             cd $PROJECT_DIR
 
