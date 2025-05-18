@@ -17,7 +17,7 @@ jobs:
 
       - name: SSH into EC2 and deploy
         env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
@@ -28,17 +28,17 @@ jobs:
             sudo apt update
             sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip libpq-dev build-essential git
 
-            export PAT_TOKEN=${PAT_TOKEN}
+            export GH_TOKEN=${GH_TOKEN}
             PROJECT_DIR="${{ secrets.EC2_PROJECT_DIR }}"
 
             if [ ! -d "$PROJECT_DIR/.git" ]; then
               echo "Cloning repository..."
-              git clone https://$PAT_TOKEN@github.com/asha-sharma124/CuisineBackend.git $PROJECT_DIR
+              git clone https://$GH_TOKEN@github.com/asha-sharma124/CuisineBackend.git $PROJECT_DIR
             else
               echo "Pulling latest changes..."
               cd $PROJECT_DIR
               git reset --hard
-              git pull https://$PAT_TOKEN@github.com/asha-sharma124/CuisineBackend.git main
+              git pull https://$GH_TOKEN@github.com/asha-sharma124/CuisineBackend.git main
             fi
 
             cd $PROJECT_DIR
