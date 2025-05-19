@@ -38,8 +38,8 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd /path/to/your/backend/foodsite/on/ec2
+          cd /path/to/your/backend/foodsite
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite:latest
-          docker-compose down
-          docker-compose up -d
+          sudo docker compose down
+          sudo docker compose up -d
