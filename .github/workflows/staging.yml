@@ -42,4 +42,4 @@ jobs:
           sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
           sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite:latest
           sudo docker compose down
-          sudo docker compose up -d
+          sudo docker compose up --build -d
