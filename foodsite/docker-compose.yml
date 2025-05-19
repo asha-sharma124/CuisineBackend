@@ -1,6 +1,10 @@
 services:
   backend:
+<<<<<<< HEAD
     image: aashu515/foodsite:latest
+=======
+    image: asha515/foodsite:latest
+>>>>>>> a00e8aee3d76db4e5b51b7418bbc36c4cd951e85
     container_name: backendCo
     ports:
       - "8001:8000"
