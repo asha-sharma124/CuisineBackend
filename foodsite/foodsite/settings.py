@@ -26,7 +26,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["13.127.249.190","localhost","127.0.0.1"]
+
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
 
 
@@ -47,7 +48,9 @@ INSTALLED_APPS = [
     'orders',
 ]
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server URL
+    "http://localhost:3000",
+      "http://cuisinebucketfinal.s3-website.ap-south-1.amazonaws.com", 
+       "http://cuisinestaging.s3-website.ap-south-1.amazonaws.com" # React dev server URL
 ]
 
 
@@ -169,8 +172,21 @@ import os
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+import os
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
+
+
+
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
