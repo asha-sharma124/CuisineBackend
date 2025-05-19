@@ -42,6 +42,7 @@ jobs:
             cd ${{ secrets.EC2_PROJECT_DIR }}
 
             echo "Removing old virtual environment if exists..."
+            
             rm -rf venv
 
             echo "Creating new virtual environment with Python 3.12..."
