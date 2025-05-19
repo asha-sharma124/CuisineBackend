@@ -26,10 +26,10 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite
-        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
+        sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite
+        sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
+        sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
+        sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v0.1.7
@@ -39,7 +39,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd /path/to/your/backend/foodsite
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite:latest
+          sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
+          sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite:latest
           sudo docker compose down
           sudo docker compose up -d
