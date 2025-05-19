@@ -1,6 +1,6 @@
 services:
   backend:
-    image: aashu123/foodsite-backend:latest
+    image: aashu123/foodsite:latest
     container_name: backendCo
     ports:
       - "8001:8000"
