@@ -96,3 +96,4 @@ tzdata==2025.2
 urllib3==2.4.0
 pytz
 gunicorn
+psycopg2-binary
