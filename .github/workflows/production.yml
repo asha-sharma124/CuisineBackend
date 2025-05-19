@@ -34,11 +34,11 @@ jobs:
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e
 
-            echo "Installing Python 3.12 and dependencies..."
-            sudo add-apt-repository -y ppa:deadsnakes/ppa
-            sudo apt update
-            sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip 
-            #libpq-dev build-essential
+            # echo "Installing Python 3.12 and dependencies..."
+            # sudo add-apt-repository -y ppa:deadsnakes/ppa
+            # sudo apt update
+            # sudo apt install -y python3.12 python3.12-venv python3.12-dev python3-pip 
+          
 
             cd ${{ secrets.EC2_PROJECT_DIR }}
 
@@ -52,22 +52,10 @@ jobs:
             echo "Activating virtual environment..."
             source venv/bin/activate
 
-            # echo "Upgrading pip, setuptools, and wheel..."
-            # venv/bin/pip install --upgrade pip setuptools wheel
-
-            # echo "Uninstalling existing psycopg or psycopg2 (if any)..."
-            # venv/bin/pip show psycopg && venv/bin/pip uninstall -y psycopg || true
-            # venv/bin/pip show psycopg2 && venv/bin/pip uninstall -y psycopg2 psycopg2-binary || true
-
-            # echo "Installing psycopg with binary extras..."
-            # venv/bin/pip install "psycopg[binary]"
+          
 
             echo "Installing project dependencies from requirements.txt..."
             venv/bin/pip install -r requirements.txt
-
-            # echo "Verifying psycopg import..."
-            # venv/bin/python -c "import psycopg" || { echo 'ERROR: psycopg module not found'; exit 1; }
-
             echo "Running Django database migrations..."
             venv/bin/python manage.py migrate
 
