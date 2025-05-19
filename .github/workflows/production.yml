@@ -1,1 +1,69 @@
-d
+name: Deploy Django to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+    
+          
+
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
+          
+
+      - name: Sync project to EC2
+        run: |
+          rsync -avz -e "ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no" \
+            ./foodsite/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_PROJECT_DIR }}/
+
+
+
+      - name: SSH into EC2 and deploy
+        run: |
+          ssh -i ec2_key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+           
+            set -e #checking error
+            
+
+            cd ${{ secrets.EC2_PROJECT_DIR }}
+
+
+            
+            rm -rf venv
+
+           
+            python3.12 -m venv venv
+
+          
+            source venv/bin/activate
+
+          
+
+         
+            venv/bin/pip install -r requirements.txt
+            
+            
+            venv/bin/python manage.py migrate
+
+            echo "Exporting DJANGO_SETTINGS_MODULE..."
+            export DJANGO_SETTINGS_MODULE=foodsite.settings  
+            
+            
+            sudo systemctl daemon-reload
+            sudo systemctl restart foodsite
+            sudo systemctl restart nginx
+            echo " Deployment done"
+          EOF
