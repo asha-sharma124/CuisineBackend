@@ -26,10 +26,10 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite
-        sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
-        sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
-        sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v0.1.7
