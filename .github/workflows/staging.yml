@@ -8,19 +8,16 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        
 
     - name: Set image tag with date-time
       id: tag
@@ -42,7 +39,10 @@ jobs:
         script: |
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
           cd backend/foodsite
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite:latest
-          sudo docker compose down
-          sudo docker compose up --build -d
+
+          # Update docker-compose.yml to use the new image tag
+          sed -i "s|image: .*/foodsite:.*|image: ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}|g" docker-compose.yml
+
+          docker compose pull
+          docker compose down
+          docker compose up -d
