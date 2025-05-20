@@ -38,7 +38,7 @@ jobs:
         mkdir -p ~/.ssh
         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
         rsync -avz -e "ssh -i key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no" \
-        foodsite/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:backend/
+        foodsite/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:backend/foodsite/
 
 
 
