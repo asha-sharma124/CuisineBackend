@@ -30,14 +30,15 @@ jobs:
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
 
-    - name: Upload foodsite code to EC2 (sync to backend/foodsite/)
-      uses: appleboy/scp-action@v0.1.7
+    - name: Sync foodsite contents to EC2 backend/foodsite
+      uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "foodsite/"
-        target: "backend/"
+        script: |
+          echo "Syncing code to backend/foodsite..."
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa" ./foodsite/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:backend/foodsite/
 
     - name: Deploy to EC2 via SSH
       uses: appleboy/ssh-action@v0.1.7
