@@ -30,8 +30,11 @@ jobs:
     - name: Build and push Docker image
       run: |
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} foodsite
+        
         docker tag ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }} ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
+        
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:${{ env.IMAGE_TAG }}
+        
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/foodsite:latest
 
     - name: Upload foodsite folder to EC2 backend/foodsite using rsync
@@ -39,7 +42,9 @@ jobs:
         echo "${{ secrets.EC2_SSH_KEY }}" > key.pem
         chmod 600 key.pem
         mkdir -p ~/.ssh
+        
         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+        
         rsync -avz --exclude '.env' -e "ssh -i key.pem -p ${{ secrets.EC2_SSH_PORT }} -o StrictHostKeyChecking=no" \
         ./foodsite/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:backend/foodsite/
 
