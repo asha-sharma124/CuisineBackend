@@ -41,32 +41,32 @@ pipeline {
                 ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
                   $EC2_USER@$EC2_HOST << 'EOF'
 
-                  set -e
+                set -e
 
-                  cd $EC2_PROJECT_DIR
+                cd $EC2_PROJECT_DIR
 
-                  echo "Removing old venv..."
-                  rm -rf venv
+                echo "Removing old venv..."
+                rm -rf venv
 
-                  echo "Creating new venv..."
-                  python3.12 -m venv venv
+                echo "Creating new venv..."
+                python3.12 -m venv venv
 
-                  echo "Activating and installing requirements..."
-                  source venv/bin/activate
-                  venv/bin/pip install -r requirements.txt
+                echo "Activating and installing requirements..."
+                source venv/bin/activate
+                venv/bin/pip install -r requirements.txt
 
-                  echo "Applying migrations..."
-                  venv/bin/python manage.py migrate
+                echo "Applying migrations..."
+                venv/bin/python manage.py migrate
 
-                  echo "Exporting settings..."
-                  export DJANGO_SETTINGS_MODULE=foodsite.settings
+                echo "Exporting settings..."
+                export DJANGO_SETTINGS_MODULE=foodsite.settings
 
-                  echo "Restarting services..."
-                  sudo systemctl daemon-reload
-                  sudo systemctl restart foodsite
-                  sudo systemctl restart nginx
+                echo "Restarting services..."
+                sudo systemctl daemon-reload
+                sudo systemctl restart foodsite
+                sudo systemctl restart nginx
 
-                  echo "✅ Deployment complete"
+                echo "✅ Deployment complete"
                 EOF
                 '''
             }
