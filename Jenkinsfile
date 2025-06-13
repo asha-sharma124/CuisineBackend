@@ -29,7 +29,7 @@ pipeline {
                 ]) {
                     sh '''
                     rsync -avz --exclude='.env' -e "ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no" \
-                      ./foodsite/ $EC2_USER@$EC2_HOST:$EC2_PROJECT_DIR/
+                      ./backend/foodsite/ $EC2_USER@$EC2_HOST:$EC2_PROJECT_DIR/
                     '''
                 }
             }
@@ -60,7 +60,7 @@ pipeline {
                       echo "Activating and installing requirements..."
                       source venv/bin/activate
                       ls -l requirements.txt
-                      venv/bin/pip install -r requirements.txt
+                      pip install -r requirements.txt
 
                       echo "Applying migrations..."
                       venv/bin/python manage.py migrate
