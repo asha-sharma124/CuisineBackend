@@ -59,6 +59,7 @@ pipeline {
 
                       echo "Activating and installing requirements..."
                       source venv/bin/activate
+                      ls -l requirements.txt
                       venv/bin/pip install -r requirements.txt
 
                       echo "Applying migrations..."
