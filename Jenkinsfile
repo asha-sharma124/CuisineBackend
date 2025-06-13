@@ -44,7 +44,7 @@ pipeline {
                     string(credentialsId: 'ec2-ssh-port', variable: 'EC2_SSH_PORT'),
                     string(credentialsId: 'ec2-project-dir', variable: 'EC2_PROJECT_DIR')
                 ]) {
-                    sh """
+                    sh """#!/bin/bash
                     echo "🚀 Deploying on EC2..."
                     ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
                       $EC2_USER@$EC2_HOST << 'EOF'
