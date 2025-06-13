@@ -79,7 +79,7 @@ pipeline {
                       sudo systemctl restart nginx
 
                       echo "✅ Deployment complete."
-                    EOF
+                    
                     """
                 }
             }
