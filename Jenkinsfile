@@ -29,7 +29,7 @@ pipeline {
                 ]) {
                     sh '''
                     rsync -avz --exclude='.env' -e "ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no" \
-                      ./backend/foodsite/ $EC2_USER@$EC2_HOST:$EC2_PROJECT_DIR/
+                      ./foodsite/ $EC2_USER@$EC2_HOST:$EC2_PROJECT_DIR/
                     '''
                 }
             }
