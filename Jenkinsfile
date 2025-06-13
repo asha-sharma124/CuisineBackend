@@ -60,7 +60,7 @@ pipeline {
                       ls -al
 
                       echo "🧹 Removing old virtual environment..."
-                      rm -rf venv
+                      sudo rm -rf venv
 
                       echo "🐍 Creating new virtual environment..."
                       python3.12 -m venv venv
