@@ -43,7 +43,7 @@ pipeline {
 
                 set -e
 
-                cd $EC2_PROJECT_DIR
+                cd $EC2_PROJECT_DIR && ls 
 
                 echo "Removing old venv..."
                 rm -rf venv
