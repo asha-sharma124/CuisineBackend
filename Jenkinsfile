@@ -45,44 +45,45 @@ pipeline {
                     string(credentialsId: 'ec2-project-dir', variable: 'EC2_PROJECT_DIR')
                 ]) {
                     sh """
-                        echo "🚀 Deploying on EC2..."
-                        ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \\
-                          \$EC2_USER@\$EC2_HOST << 'ENDSSH'
-        
-                          set -e
-        
-                          echo "📂 Changing directory to: \$EC2_PROJECT_DIR"
-                          cd \$EC2_PROJECT_DIR
-        
-                          echo "📄 Current directory:"
-                          pwd
-                          echo "📁 Listing files:"
-                          ls -al
-        
-                          echo "🧹 Removing old virtual environment..."
-                          sudo rm -rf venv
-        
-                          echo "🐍 Creating new virtual environment..."
-                          python3.12 -m venv venv
-        
-                          echo "📦 Installing Python requirements..."
-                          source venv/bin/activate
-                          ls -l requirements.txt
-                          pip install -r requirements.txt
-        
-                          echo "📂 Running Django migrations..."
-                          venv/bin/python manage.py migrate
-        
-                          echo "⚙️ Restarting services..."
-                          sudo systemctl daemon-reload
-                          sudo systemctl restart foodsite
-                          sudo systemctl restart nginx
-        
-                          echo "✅ Deployment complete."
-        ENDSSH
+                    echo "🚀 Deploying on EC2..."
+                    ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
+                      $EC2_USER@$EC2_HOST <<EOF
+
+                      set -e
+
+                      echo "📂 Changing directory to: $EC2_PROJECT_DIR"
+                      cd $EC2_PROJECT_DIR
+
+                      echo "📄 Current directory:"
+                      pwd
+                      echo "📁 Listing files:"
+                      ls -al
+
+                      echo "🧹 Removing old virtual environment..."
+                      sudo rm -rf venv
+
+                      echo "🐍 Creating new virtual environment..."
+                      python3.12 -m venv venv
+
+                      echo "📦 Installing Python requirements..."
+                      source venv/bin/activate
+                      ls -l requirements.txt
+                      pip install -r requirements.txt
+
+                      echo "📂 Running Django migrations..."
+                      venv/bin/python manage.py migrate
+
+                      echo "⚙️ Restarting services..."
+                      sudo systemctl daemon-reload
+                      sudo systemctl restart foodsite
+                      sudo systemctl restart nginx
+
+                      echo "✅ Deployment complete."
+                    EOF
                     """
                 }
             }
         }
     }
 }
+
