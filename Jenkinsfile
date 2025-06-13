@@ -28,8 +28,8 @@ pipeline {
                     string(credentialsId: 'ec2-project-dir', variable: 'EC2_PROJECT_DIR')
                 ]) {
                     sh '''
-                    rsync -avz --exclude='.env' -e "ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no" \
-                      ./foodsite/ $EC2_USER@$EC2_HOST:$EC2_PROJECT_DIR/
+                    rsync -avz --exclude='.env' -e "ssh -i ec2_key.pem -p ${EC2_SSH_PORT} -o StrictHostKeyChecking=no" \
+                      ./foodsite/ ${EC2_USER}@${EC2_HOST}:${EC2_PROJECT_DIR}/
                     '''
                 }
             }
@@ -44,38 +44,31 @@ pipeline {
                     string(credentialsId: 'ec2-project-dir', variable: 'EC2_PROJECT_DIR')
                 ]) {
                     sh '''
-                    
-                    ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
-                      $EC2_USER@$EC2_HOST << 'EOF'
+                    ssh -i ec2_key.pem -p ${EC2_SSH_PORT} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
 
-                      set -e
+                    set -e
 
-                   
-                      cd $EC2_PROJECT_DIR
+                    cd ${EC2_PROJECT_DIR}
 
-                     
-                    
+                    echo "Removing old venv..."
+                    sudo rm -rf venv
 
-                  
-                      sudo rm -rf venv
+                    echo "Creating new venv..."
+                    python3.12 -m venv venv
 
-                     
-                      python3.12 -m venv venv
+                    echo "Activating and installing requirements..."
+                    source venv/bin/activate
+                    pip install -r requirements.txt
 
-                    
-                      source venv/bin/activate
-                    
-                      pip install -r requirements.txt
+                    echo "Applying migrations..."
+                    venv/bin/python manage.py migrate
 
-                    
-                      venv/bin/python manage.py migrate
+                    echo "Restarting services..."
+                    sudo systemctl daemon-reload
+                    sudo systemctl restart foodsite
+                    sudo systemctl restart nginx
 
-                     
-                      sudo systemctl daemon-reload
-                      sudo systemctl restart foodsite
-                      sudo systemctl restart nginx
-
-                      echo "✅ Deployment complete."
+                    echo "✅ Deployment complete."
                     EOF
                     '''
                 }
