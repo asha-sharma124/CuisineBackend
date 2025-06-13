@@ -43,7 +43,7 @@ pipeline {
 
                 set -e
 
-                cd $EC2_PROJECT_DIR && ls 
+                cd ~/backend/foodsite && ls 
 
                 echo "Removing old venv..."
                 rm -rf venv
