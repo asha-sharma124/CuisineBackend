@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        EC2_HOST = credentials('ec2-host')              // e.g., 13.235.123.45
-        EC2_USER = credentials('ec2-user')              // e.g., ubuntu or ec2-user
-        EC2_SSH_PORT = credentials('ec2-ssh-port')      // usually 22
-        EC2_PROJECT_DIR = credentials('ec2-project-dir')// e.g., /home/ubuntu/foodsite
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -28,47 +21,61 @@ pipeline {
 
         stage('Sync Project to EC2') {
             steps {
-                sh '''
-                rsync -avz --exclude='.env' -e "ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no" \
-                  ./foodsite/ $EC2_USER@$EC2_HOST:$EC2_PROJECT_DIR/
-                '''
+                withCredentials([
+                    string(credentialsId: 'ec2-host', variable: 'EC2_HOST'),
+                    string(credentialsId: 'ec2-user', variable: 'EC2_USER'),
+                    string(credentialsId: 'ec2-ssh-port', variable: 'EC2_SSH_PORT'),
+                    string(credentialsId: 'ec2-project-dir', variable: 'EC2_PROJECT_DIR')
+                ]) {
+                    sh '''
+                    rsync -avz --exclude='.env' -e "ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no" \
+                      ./foodsite/ $EC2_USER@$EC2_HOST:$EC2_PROJECT_DIR/
+                    '''
+                }
             }
         }
 
         stage('SSH into EC2 and Deploy') {
             steps {
-                sh '''
-                ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
-                  $EC2_USER@$EC2_HOST << 'EOF'
+                withCredentials([
+                    string(credentialsId: 'ec2-host', variable: 'EC2_HOST'),
+                    string(credentialsId: 'ec2-user', variable: 'EC2_USER'),
+                    string(credentialsId: 'ec2-ssh-port', variable: 'EC2_SSH_PORT'),
+                    string(credentialsId: 'ec2-project-dir', variable: 'EC2_PROJECT_DIR')
+                ]) {
+                    sh '''
+                    ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
+                      $EC2_USER@$EC2_HOST << 'EOF'
 
-                  set -e
+                      set -e
 
-                  cd $EC2_PROJECT_DIR
+                      cd $EC2_PROJECT_DIR
 
-                  echo "Removing old venv..."
-                  rm -rf venv
+                      echo "Removing old venv..."
+                      rm -rf venv
 
-                  echo "Creating new venv..."
-                  python3.12 -m venv venv
+                      echo "Creating new venv..."
+                      python3.12 -m venv venv
 
-                  echo "Activating and installing requirements..."
-                  source venv/bin/activate
-                  venv/bin/pip install -r requirements.txt
+                      echo "Activating and installing requirements..."
+                      source venv/bin/activate
+                      venv/bin/pip install -r requirements.txt
 
-                  echo "Applying migrations..."
-                  venv/bin/python manage.py migrate
+                      echo "Applying migrations..."
+                      venv/bin/python manage.py migrate
 
-                  echo "Exporting settings..."
-                  export DJANGO_SETTINGS_MODULE=foodsite.settings
+                      echo "Exporting settings..."
+                      export DJANGO_SETTINGS_MODULE=foodsite.settings
 
-                  echo "Restarting services..."
-                  sudo systemctl daemon-reload
-                  sudo systemctl restart foodsite
-                  sudo systemctl restart nginx
+                      echo "Restarting services..."
+                      sudo systemctl daemon-reload
+                      sudo systemctl restart foodsite
+                      sudo systemctl restart nginx
 
-                  echo "✅ Deployment complete"
-                EOF
-                '''
+                      echo "✅ Deployment complete"
+                    EOF
+                    '''
+                }
             }
         }
     }
