@@ -47,7 +47,7 @@ pipeline {
                     sh """
                     echo "🚀 Deploying on EC2..."
                     ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
-                      $EC2_USER@$EC2_HOST <<EOF
+                      $EC2_USER@$EC2_HOST << 'EOF'
 
                       set -e
 
