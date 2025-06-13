@@ -57,7 +57,7 @@ pipeline {
                     
 
                   
-                      rm -rf venv
+                      sudo rm -rf venv
 
                      
                       python3.12 -m venv venv
