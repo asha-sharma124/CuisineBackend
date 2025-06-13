@@ -35,39 +35,37 @@ pipeline {
             }
         }
 
-       stage('SSH into EC2 and Deploy') {
+  stage('SSH into EC2 and Deploy') {
     steps {
         sh '''
-        ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
-        set -xe  # Print commands and exit on error
+        ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST <<EOF
+set -xe
 
-        cd ~/backend/foodsite || exit 1
-        ls
+cd ~/backend/foodsite || exit 1
+ls
 
-        echo "Removing old venv..."
-        rm -rf venv
+echo "Removing old venv..."
+rm -rf venv
 
-        echo "Creating new venv..."
-        which python3.12
-        python3.12 --version
-        python3.12 -m venv venv
+echo "Creating new venv..."
+which python3.12
+python3.12 --version
+python3.12 -m venv venv
 
-        echo "Installing requirements..."
-        venv/bin/pip install -r requirements.txt
+echo "Installing requirements..."
+venv/bin/pip install -r requirements.txt
 
-        echo "Running migrations..."
-        venv/bin/python manage.py migrate
+echo "Running migrations..."
+venv/bin/python manage.py migrate
 
-        echo "Restarting services..."
-        sudo systemctl daemon-reload
-        sudo systemctl restart foodsite
-        sudo systemctl restart nginx
+echo "Restarting services..."
+sudo systemctl daemon-reload
+sudo systemctl restart foodsite
+sudo systemctl restart nginx
 
-        echo "✅ Deployment complete"
-        EOF
+echo "✅ Deployment complete"
+EOF
         '''
     }
 }
-
-    }
-}
+    }}
