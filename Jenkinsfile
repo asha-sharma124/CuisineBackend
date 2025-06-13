@@ -51,7 +51,7 @@ pipeline {
                       set -e
 
                    
-                      cd ${EC2_PROJECT_DIR}
+                      cd $EC2_PROJECT_DIR
 
                      
                     
