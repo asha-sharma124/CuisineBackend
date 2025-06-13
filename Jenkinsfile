@@ -45,8 +45,8 @@ pipeline {
                 ]) {
                     sh '''
                     
-                    ssh -i ec2_key.pem -p ${EC2_SSH_PORT} -o StrictHostKeyChecking=no \
-                      ${EC2_USER}@${EC2_HOST} << 'EOF'
+                    ssh -i ec2_key.pem -p $EC2_SSH_PORT -o StrictHostKeyChecking=no \
+                      $EC2_USER@$EC2_HOST << 'EOF'
 
                       set -e
 
