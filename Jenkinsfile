@@ -116,11 +116,11 @@ pipeline {
 set -xe
 
 # Copy code from /tmp to private EC2 using jump → private key
-ssh -i ~/.ssh/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST "mkdir -p $PRIVATE_PROJECT_DIR"
-scp -i ~/.ssh/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/* $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
+ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST "mkdir -p $PRIVATE_PROJECT_DIR"
+scp -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/* $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
 
 # SSH into private EC2 and run deployment
-ssh -i ~/.ssh/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<'INNER'
+ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<'INNER'
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
