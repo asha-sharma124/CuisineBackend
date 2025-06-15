@@ -128,7 +128,7 @@ echo "📁 Creating project directory on Private EC2..."
 ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST "mkdir -p $PRIVATE_PROJECT_DIR"
 
 echo "📤 Copying project files to Private EC2..."
-scp -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/* $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
+scp -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/. $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
 
 echo "💻 SSH into Private EC2 and start deployment..."
 ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<INNER
