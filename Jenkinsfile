@@ -45,12 +45,6 @@ pipeline {
 
                   cd $EC2_PROJECT_DIR
 
-                  echo "Removing old venv..."
-                  rm -rf venv
-
-                  echo "Creating new venv..."
-                  python3.12 -m venv venv
-
                   echo "Activating and installing requirements..."
                   source venv/bin/activate
                   venv/bin/pip install -r requirements.txt
