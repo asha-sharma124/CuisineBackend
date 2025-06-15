@@ -104,7 +104,7 @@ pipeline {
             steps {
                 sh '''
                 rsync -avz --exclude='.env' -e "ssh -i jump_key.pem -o StrictHostKeyChecking=no" \
-                  ./foodsite/ $JUMP_USER@$JUMP_HOST:/tmp/foodsite/
+                  ./foodsite/ $JUMP_USER@$JUMP_HOST:$PRIVATE_PROJECT_DIR/
                 '''
             }
         }
