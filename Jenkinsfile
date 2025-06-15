@@ -112,7 +112,7 @@ pipeline {
         stage('SSH from Jump to Private and Deploy') {
             steps {
                 sh '''
-                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<'EOF'
+                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<EOF
 set -xe
 
 # Copy code from /tmp to private EC2 using jump → private key
@@ -120,7 +120,7 @@ ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST
 scp -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/* $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
 
 # SSH into private EC2 and run deployment
-ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<'INNER'
+ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<INNER
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
