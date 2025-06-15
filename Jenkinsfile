@@ -103,6 +103,7 @@ pipeline {
         stage('Send Code to Jump Server') {
             steps {
                 sh '''
+                echo "🔁 Sending code to Jump Server..."
                 rsync -avz --exclude='.env' -e "ssh -i jump_key.pem -o StrictHostKeyChecking=no" \
                   ./foodsite/ $JUMP_USER@$JUMP_HOST:/tmp/foodsite/
                 '''
@@ -112,32 +113,44 @@ pipeline {
         stage('SSH from Jump to Private and Deploy') {
             steps {
                 sh '''
-                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<EOF
+                echo "🚀 Deploying from Jump Server to Private EC2..."
+
+                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<'EOF'
 set -xe
 
-# Copy code from /tmp to private EC2 using jump → private key
+echo "📦 Listing files in Jump Server before SCP:"
+ls -la /tmp/foodsite/
+
+echo "🔐 Ensuring key exists for Private EC2..."
+ls -l ~/private-ec2.pem
+
+echo "📁 Creating project directory on Private EC2..."
 ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST "mkdir -p $PRIVATE_PROJECT_DIR"
-scp -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r "/tmp/foodsite/" $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
 
+echo "📤 Copying project files to Private EC2..."
+scp -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/* $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
 
-# SSH into private EC2 and run deployment
+echo "💻 SSH into Private EC2 and start deployment..."
 ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<INNER
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
-echo "Removing old venv..."
+echo "🗂️ Files inside Private EC2 Project Directory:"
+ls -la
+
+echo "🧹 Removing old virtual environment..."
 rm -rf venv
 
-echo "Creating new venv..."
+echo "🧪 Creating new virtual environment..."
 python3.12 -m venv venv
 
-echo "Installing requirements..."
+echo "📦 Installing dependencies..."
 venv/bin/pip install -r requirements.txt
 
-echo "Running migrations..."
+echo "📂 Running Django migrations..."
 venv/bin/python manage.py migrate
 
-echo "Restarting services..."
+echo "🔄 Restarting services..."
 sudo systemctl daemon-reload
 sudo systemctl restart foodsite
 sudo systemctl restart nginx
