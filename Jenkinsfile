@@ -115,7 +115,7 @@ pipeline {
                 sh '''
                 echo "🚀 Deploying from Jump Server to Private EC2..."
 
-                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<'EOF'
+                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<EOF
 set -xe
 
 echo "📦 Listing files in Jump Server before SCP:"
