@@ -121,9 +121,6 @@ set -xe
 echo "📦 Listing files in Jump Server before SCP:"
 ls -la /tmp/foodsite/
 
-echo "🔐 Ensuring key exists for Private EC2..."
-ls -l ~/private-ec2.pem
-ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST "mkdir -p $PRIVATE_PROJECT_DIR"
 
 echo "📤 Copying project files to Private EC2..."
 scp -v -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/. $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
