@@ -153,7 +153,7 @@ pipeline {
 
                 ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
                 -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST \
-                "cd $PRIVATE_PROJECT_DIR && chmod +x ./foodsite/deploy.sh && ./foodsite/deploy.sh $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $PRIVATE_PROJECT_DIR $IMAGE_TAG"
+                "cd $PRIVATE_PROJECT_DIR && chmod +x deploy.sh && ./deploy.sh $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $PRIVATE_PROJECT_DIR $IMAGE_TAG"
 echo " Deployment complete"
 
 
