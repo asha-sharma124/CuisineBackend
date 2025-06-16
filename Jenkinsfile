@@ -89,23 +89,31 @@ pipeline {
             }
         }
 
-        stage('Write Jump SSH Key') {
+        stage('Write SSH Keys') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'jump-ssh-key', keyFileVariable: 'JUMP_KEY_FILE')]) {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'jump-ssh-key', keyFileVariable: 'JUMP_KEY_FILE'),
+                    sshUserPrivateKey(credentialsId: 'private-ec2-key', keyFileVariable: 'PRIVATE_KEY_FILE')
+                ]) {
                     sh '''
                     cp $JUMP_KEY_FILE jump_key.pem
                     chmod 600 jump_key.pem
+
+                    cp $PRIVATE_KEY_FILE private-ec2.pem
+                    chmod 600 private-ec2.pem
                     '''
                 }
             }
         }
 
+
         stage('Send Code to Jump Server') {
             steps {
                 sh '''
                 echo "Sending code to Jump Server..."
-                rsync -avz --exclude='.env' -e "ssh -i jump_key.pem -o StrictHostKeyChecking=no" \
-                  ./foodsite/ $JUMP_USER@$JUMP_HOST:/tmp/foodsite/
+                rsync -avz --exclude='.env' \
+                -e 'ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
+                -i private-ec2.pem -o StrictHostKeyChecking=no' ./foodsite/  $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
                 '''
             }
         }
@@ -115,30 +123,13 @@ pipeline {
                 sh '''
                 echo " Deploying from Jump Server to Private EC2..."
 
-                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<EOF
-set -xe
-
-echo "Listing files in Jump Server before SCP:"
-ls -la /tmp/foodsite/
 
 
-echo "Copying project files to Private EC2..."
-scp -v -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/. $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
-
-echo "SSH into Private EC2 and start deployment..."
-ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<'INNER'
-
+                ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
+                -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST << EOF
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
-echo "Files inside Private EC2 Project Directory:"
-ls -la
-
-echo "Removing old virtual environment..."
-rm -rf venv
-
-echo " Creating new virtual environment..."
-python3.12 -m venv venv
 
 echo " Installing dependencies..."
 venv/bin/pip install -r requirements.txt
@@ -152,7 +143,7 @@ sudo systemctl restart foodsite
 sudo systemctl restart nginx
 
 echo " Deployment complete"
-INNER
+
 EOF
                 '''
             }
