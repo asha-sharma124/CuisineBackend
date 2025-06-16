@@ -89,24 +89,31 @@ pipeline {
             }
         }
 
-        stage('Write Jump SSH Key') {
+        stage('Write SSH Keys') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'jump-ssh-key', keyFileVariable: 'JUMP_KEY_FILE')]) {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'jump-ssh-key', keyFileVariable: 'JUMP_KEY_FILE'),
+                    sshUserPrivateKey(credentialsId: 'private-ec2-key', keyFileVariable: 'PRIVATE_KEY_FILE')
+                ]) {
                     sh '''
                     cp $JUMP_KEY_FILE jump_key.pem
                     chmod 600 jump_key.pem
+
+                    cp $PRIVATE_KEY_FILE private-ec2.pem
+                    chmod 600 private-ec2.pem
                     '''
                 }
             }
         }
+
 
         stage('Send Code to Jump Server') {
             steps {
                 sh '''
                 echo "Sending code to Jump Server..."
                 rsync -avz --exclude='.env' \
-                -e "ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p' \
-                -i private-ec2.pem -o StrictHostKeyChecking=no " ./foodsite/  $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR
+                -e 'ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
+                -i private-ec2.pem -o StrictHostKeyChecking=no' ./foodsite/  $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
                 '''
             }
         }
@@ -119,7 +126,7 @@ pipeline {
 
 
                 ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
-                -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST <<EOF
+                -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST << EOF
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
