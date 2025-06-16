@@ -12,6 +12,7 @@ class Vendor(models.Model):
 
 
 class Item(models.Model):
+    
     CATEGORY_CHOICES = [
         ('festival', 'Festival Specific'),
         ('fast_food', 'Fast Food'),
