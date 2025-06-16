@@ -104,8 +104,9 @@ pipeline {
             steps {
                 sh '''
                 echo "Sending code to Jump Server..."
-                rsync -avz --exclude='.env' -e "ssh -i jump_key.pem -o StrictHostKeyChecking=no" \
-                  ./foodsite/ $JUMP_USER@$JUMP_HOST:/tmp/foodsite/
+                rsync -avz --exclude='.env' \
+                -e "ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p' \
+                -i private-ec2.pem -o StrictHostKeyChecking=no " ./foodsite/  $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR
                 '''
             }
         }
@@ -115,19 +116,10 @@ pipeline {
                 sh '''
                 echo " Deploying from Jump Server to Private EC2..."
 
-                ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<EOF
-set -xe
-
-echo "Listing files in Jump Server before SCP:"
-ls -la /tmp/foodsite/
 
 
-echo "Copying project files to Private EC2..."
-scp -v -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/. $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
-
-echo "SSH into Private EC2 and start deployment..."
-ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<'INNER'
-
+ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
+-i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
