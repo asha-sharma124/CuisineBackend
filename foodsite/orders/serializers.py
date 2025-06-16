@@ -7,6 +7,7 @@ class VendorSerializer(serializers.ModelSerializer):
         fields = ['name', 'email', 'location']
 class ItemSerializer(serializers.ModelSerializer):
     vendor = VendorSerializer()
+    print("hello")
     class Meta:
         model = Item
         fields = ['id', 'name', 'description', 'price', 'image','vendor']
