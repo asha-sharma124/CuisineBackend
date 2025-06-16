@@ -2,10 +2,10 @@
 //     agent any
 
 //     environment {
-//         EC2_HOST = credentials('ec2-host')              // e.g., 13.235.123.45
-//         EC2_USER = credentials('ec2-user')              // e.g., ubuntu or ec2-user
-//         EC2_SSH_PORT = credentials('ec2-ssh-port')      // usually 22
-//         EC2_PROJECT_DIR = credentials('ec2-project-dir')// e.g., /home/ubuntu/foodsite
+//         EC2_HOST = credentials('ec2-host')              
+//         EC2_USER = credentials('ec2-user')              
+//         EC2_SSH_PORT = credentials('ec2-ssh-port')     
+//         EC2_PROJECT_DIR = credentials('ec2-project-dir')
 //     }
 
 //     stages {
@@ -103,7 +103,7 @@ pipeline {
         stage('Send Code to Jump Server') {
             steps {
                 sh '''
-                echo "🔁 Sending code to Jump Server..."
+                echo "Sending code to Jump Server..."
                 rsync -avz --exclude='.env' -e "ssh -i jump_key.pem -o StrictHostKeyChecking=no" \
                   ./foodsite/ $JUMP_USER@$JUMP_HOST:/tmp/foodsite/
                 '''
@@ -113,45 +113,45 @@ pipeline {
         stage('SSH from Jump to Private and Deploy') {
             steps {
                 sh '''
-                echo "🚀 Deploying from Jump Server to Private EC2..."
+                echo " Deploying from Jump Server to Private EC2..."
 
                 ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST <<EOF
 set -xe
 
-echo "📦 Listing files in Jump Server before SCP:"
+echo "Listing files in Jump Server before SCP:"
 ls -la /tmp/foodsite/
 
 
-echo "📤 Copying project files to Private EC2..."
+echo "Copying project files to Private EC2..."
 scp -v -i ~/private-ec2.pem -o StrictHostKeyChecking=no -r /tmp/foodsite/. $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
 
-echo "💻 SSH into Private EC2 and start deployment..."
+echo "SSH into Private EC2 and start deployment..."
 ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST <<'INNER'
 
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
-echo "🗂️ Files inside Private EC2 Project Directory:"
+echo "Files inside Private EC2 Project Directory:"
 ls -la
 
-echo "🧹 Removing old virtual environment..."
+echo "Removing old virtual environment..."
 rm -rf venv
 
-echo "🧪 Creating new virtual environment..."
+echo " Creating new virtual environment..."
 python3.12 -m venv venv
 
-echo "📦 Installing dependencies..."
+echo " Installing dependencies..."
 venv/bin/pip install -r requirements.txt
 
-echo "📂 Running Django migrations..."
+echo " Running Django migrations..."
 venv/bin/python manage.py migrate
 
-echo "🔄 Restarting services..."
+echo "Restarting services..."
 sudo systemctl daemon-reload
 sudo systemctl restart foodsite
 sudo systemctl restart nginx
 
-echo "✅ Deployment complete"
+echo " Deployment complete"
 INNER
 EOF
                 '''
