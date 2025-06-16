@@ -119,7 +119,7 @@ pipeline {
 
 
 ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
--i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST
+-i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST <<EOF
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
@@ -136,7 +136,7 @@ sudo systemctl restart foodsite
 sudo systemctl restart nginx
 
 echo " Deployment complete"
-INNER
+
 EOF
                 '''
             }
