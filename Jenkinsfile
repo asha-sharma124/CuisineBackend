@@ -131,14 +131,6 @@ ssh -i ~/private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST
 set -xe
 cd $PRIVATE_PROJECT_DIR
 
-echo "Files inside Private EC2 Project Directory:"
-ls -la
-
-echo "Removing old virtual environment..."
-rm -rf venv
-
-echo " Creating new virtual environment..."
-python3.12 -m venv venv
 
 echo " Installing dependencies..."
 venv/bin/pip install -r requirements.txt
