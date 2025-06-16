@@ -152,16 +152,11 @@ pipeline {
 
 
                 ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
-                -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST << EOF
-docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-cd $PRIVATE_PROJECT_DIR
-sed -i "s|image: .*/foodsite:.*|image: $DOCKERHUB_USERNAME/foodsite:$IMAGE_TAG|g" docker-compose.yml
-sudo docker compose pull
-sudo docker compose down
-sudo docker compose up -d 
+                -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST \
+                "cd $PRIVATE_PROJECT_DIR && chmod +x deploy.sh && ./deploy.sh $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $PRIVATE_PROJECT_DIR $IMAGE_TAG"
 echo " Deployment complete"
 
-EOF
+
                 '''
             }
         }
