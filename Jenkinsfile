@@ -80,6 +80,7 @@ pipeline {
         PRIVATE_USER = credentials('private-user')
         PRIVATE_PROJECT_DIR = credentials('private-project-dir')
         EC2_SSH_PORT = credentials('ec2-ssh-port')
+        WEBHOOK=credentials('webhook')
     }
 
     stages {
@@ -143,7 +144,7 @@ pipeline {
                 sh """
                     curl -X POST -H 'Content-Type: application/json' \
                     -d '${groovy.json.JsonOutput.toJson(message)}' \
-                    'https://chat.googleapis.com/v1/spaces/yEJuy8AAAAE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=49nNIiWP6x-VVwatypY1frr7zQRuVtKRWiKHnDiffvo'
+                    $WEBHOOK
                 """
             }
         }
@@ -156,7 +157,7 @@ pipeline {
                 sh """
                     curl -X POST -H 'Content-Type: application/json' \
                     -d '${groovy.json.JsonOutput.toJson(message)}' \
-                    'https://chat.googleapis.com/v1/spaces/yEJuy8AAAAE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=49nNIiWP6x-VVwatypY1frr7zQRuVtKRWiKHnDiffvo'
+                    $WEBHOOK
                 """
             }
         }
