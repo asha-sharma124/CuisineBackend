@@ -134,12 +134,31 @@ pipeline {
             }
         }
     }
-     post {
+    post {
         success {
-            echo '🚀 Deployment complete!'
+            script {
+                def message = [
+                    text: "✅ Jenkins Deployment Successful for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
+                ]
+                sh """
+                    curl -X POST -H 'Content-Type: application/json' \
+                    -d '${groovy.json.JsonOutput.toJson(message)}' \
+                    'https://chat.googleapis.com/v1/spaces/yEJuy8AAAAE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=49nNIiWP6x-VVwatypY1frr7zQRuVtKRWiKHnDiffvo'
+                """
+            }
         }
+
         failure {
-            echo '💥 Deployment failed!'
+            script {
+                def message = [
+                    text: "❌ Jenkins Deployment Failed for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
+                ]
+                sh """
+                    curl -X POST -H 'Content-Type: application/json' \
+                    -d '${groovy.json.JsonOutput.toJson(message)}' \
+                    'https://chat.googleapis.com/v1/spaces/yEJuy8AAAAE/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=49nNIiWP6x-VVwatypY1frr7zQRuVtKRWiKHnDiffvo'
+                """
+            }
         }
     }
 
