@@ -106,7 +106,7 @@ pipeline {
         stage('docker build and push image')
         {
             steps{
-                sh './scripts/docker.sh $DOCKERHUB_USERNAME $IMAGE_TAG'
+                sh './scripts/docker_build_push.sh $DOCKERHUB_USERNAME $IMAGE_TAG'
             }
         }
     
