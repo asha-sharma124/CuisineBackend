@@ -130,29 +130,7 @@ pipeline {
       
         stage('Send Code to Jump Server') {
             steps {
-                sh '''
-                echo "Sending code to Jump Server..."
-                rsync -avz --exclude='.env' \
-                -e 'ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
-                -i private-ec2.pem -o StrictHostKeyChecking=no' ./foodsite/  $PRIVATE_USER@$PRIVATE_HOST:$PRIVATE_PROJECT_DIR/
-                '''
-            }
-        }
-
-        stage('SSH from Jump to Private and Deploy') {
-            steps {
-                sh '''
-                echo " Deploying from Jump Server to Private EC2..."
-
-
-
-                ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
-                -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST \
-                "cd $PRIVATE_PROJECT_DIR && chmod +x ./scripts/deploy.sh && ./scripts/deploy.sh $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $PRIVATE_PROJECT_DIR $IMAGE_TAG"
-echo " Deployment complete"
-
-   
-                '''
+                sh './scripts/ssh_deploy.sh $JUMP_KEY  $EC2_KEY $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
             }
         }
     }
