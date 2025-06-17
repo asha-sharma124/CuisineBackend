@@ -156,7 +156,12 @@ pipeline {
                 "cd $PRIVATE_PROJECT_DIR && chmod +x deploy.sh && ./deploy.sh $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $PRIVATE_PROJECT_DIR $IMAGE_TAG"
 echo " Deployment complete"
 
-    post {
+   
+                '''
+            }
+        }
+    }
+     post {
         success {
             echo '🚀 Deployment complete!'
         }
@@ -165,8 +170,4 @@ echo " Deployment complete"
         }
     }
 
-                '''
-            }
-        }
-    }
 }
