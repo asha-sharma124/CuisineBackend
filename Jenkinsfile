@@ -130,7 +130,7 @@ pipeline {
       
         stage('Send Code to Jump Server') {
             steps {
-                sh './scripts/ssh_deploy.sh $JUMP_KEY  $EC2_KEY $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
+                sh './scripts/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
             }
         }
     }
