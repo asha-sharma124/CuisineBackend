@@ -151,14 +151,16 @@ pipeline {
 
         failure {
             script {
-                def message = [
-                    text: "❌ Jenkins Deployment Failed for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
-                ]
-                sh """
-                    curl -X POST -H 'Content-Type: application/json' \
-                    -d '${groovy.json.JsonOutput.toJson(message)}' \
-                    $WEBHOOK
-                """
+                 def message = [
+        text: "✅ Jenkins Deployment Successful for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
+    ]
+    def jsonMessage = groovy.json.JsonOutput.toJson(message).replace("'", "'\\''")
+
+    sh """
+        curl -X POST -H 'Content-Type: application/json' \
+        -d '${jsonMessage}' \
+        "$WEBHOOK"
+    """
             }
         }
     }
