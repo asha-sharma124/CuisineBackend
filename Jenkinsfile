@@ -131,7 +131,7 @@ pipeline {
       
         stage('Send Code to Jump Server') {
             steps {
-                sh './foodsite/scriptabcs/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
+                sh './foodsite/scripts/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
             }
         }
     }
@@ -139,7 +139,7 @@ pipeline {
         success {
            withCredentials([string(credentialsId: 'webhook', variable: 'WEBHOOK')]) {
        script{ def message = [
-                       text: "✅ Jenkins Deployment Successful for branch: staging [#${env.BUILD_NUMBER}]"
+                       text: "Jenkins Deployment Successful for branch: staging [#${env.BUILD_NUMBER}]"
                     ]
             writeFile file: 'payload.json', text: groovy.json.JsonOutput.toJson(message)
 
