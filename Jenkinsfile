@@ -106,7 +106,7 @@ pipeline {
         stage('docker build and push image')
         {
             steps{
-                sh './foodsite/scripts/docker_build_push.sh $DOCKERHUB_USERNAME $IMAGE_TAG'
+                sh 'chmod +x ./foodsite/scripts/*.sh && ./foodsite/scripts/docker_build_push.sh $DOCKERHUB_USERNAME $IMAGE_TAG'
             }
         }
     
