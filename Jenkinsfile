@@ -106,7 +106,7 @@ pipeline {
         stage('docker build and push image')
         {
             steps{
-                sh './scripts/docker_build_push.sh $DOCKERHUB_USERNAME $IMAGE_TAG'
+                sh './foodsite/scripts/docker_build_push.sh $DOCKERHUB_USERNAME $IMAGE_TAG'
             }
         }
     
@@ -130,7 +130,7 @@ pipeline {
       
         stage('Send Code to Jump Server') {
             steps {
-                sh './scripts/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
+                sh './foodsite/scripts/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
             }
         }
     }
