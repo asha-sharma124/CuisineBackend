@@ -137,17 +137,18 @@ pipeline {
     }
     post {
         success {
-            script {
-                def message = [
-                    text: "✅ Jenkins Deployment Successful for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
-                ]
-                sh """
-                    curl -X POST -H 'Content-Type: application/json' \
-                    -d '${groovy.json.JsonOutput.toJson(message)}' \
-                    $WEBHOOK
-                """
-            }
-        }
+           withCredentials([string(credentialsId: 'webhook', variable: 'WEBHOOK')]) {
+    def message = [
+        text: "✅ Jenkins Deployment Successful for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
+    ]
+    writeFile file: 'payload.json', text: groovy.json.JsonOutput.toJson(message)
+
+    sh '''
+        curl -X POST -H "Content-Type: application/json" \
+        -d @payload.json \
+        "$WEBHOOK"
+    '''
+        }}
 
         failure {
             script {
