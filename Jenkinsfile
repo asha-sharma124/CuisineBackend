@@ -131,7 +131,7 @@ pipeline {
       
         stage('Send Code to Jump Server') {
             steps {
-                sh './foodsite/scripts/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
+                sh './foodsite/scriptabcs/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
             }
         }
     }
@@ -139,29 +139,27 @@ pipeline {
         success {
            withCredentials([string(credentialsId: 'webhook', variable: 'WEBHOOK')]) {
        script{ def message = [
-        text: "✅ Jenkins Deployment Successful for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
-    ]
-    writeFile file: 'payload.json', text: groovy.json.JsonOutput.toJson(message)
+                       text: "✅ Jenkins Deployment Successful for branch: staging [#${env.BUILD_NUMBER}]"
+                    ]
+            writeFile file: 'payload.json', text: groovy.json.JsonOutput.toJson(message)
 
-    sh '''
-        curl -X POST -H "Content-Type: application/json" \
-        -d @payload.json \
-        "$WEBHOOK"
-    '''
+            sh '''
+                curl -X POST -H "Content-Type: application/json" \
+                -d @payload.json \
+                "$WEBHOOK"
+            '''
         }}}
 
         failure {
-            script {
-                 def message = [
-        text: "✅ Jenkins Deployment Successful for job: ${env.JOB_NAME} [#${env.BUILD_NUMBER}](${env.BUILD_URL})"
-    ]
-    def jsonMessage = groovy.json.JsonOutput.toJson(message).replace("'", "'\\''")
-
-    sh """
-        curl -X POST -H 'Content-Type: application/json' \
-        -d '${jsonMessage}' \
-        "$WEBHOOK"
-    """
+           withCredentials([string(credentialsId: 'webhook',variable:'WEBHOOK')]){
+               script{ def message=[text: "Jenkins Deployment failed for branch :staging  [#${env.BUILD_NUMBER}]"]
+                      writeFile file:'payload.json' , text: groovy.json.JsonOutput.toJson(message)
+                      sh '''
+                       curl -X POST -H "Content-Type: application/json" \
+                        -d @payload.json \
+                        "$WEBHOOK"
+                        '''
+                   
             }
         }
     }
