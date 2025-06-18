@@ -76,7 +76,9 @@
 
 pipeline {
     agent any
-
+    triggers {
+        githubPush()
+      }
     environment {
         DOCKERHUB_USERNAME=credentials('docker-user')
         DOCKERHUB_PASSWORD=credentials('docker-pass')
