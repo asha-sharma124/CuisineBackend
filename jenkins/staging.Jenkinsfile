@@ -8,6 +8,8 @@
 //         EC2_PROJECT_DIR = credentials('ec2-project-dir')// e.g., /home/ubuntu/foodsite
 //     }
 
+
+
 //     stages {
 
 
