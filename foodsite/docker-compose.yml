@@ -12,7 +12,6 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: nginx2
     ports:
       - "90:80"
     volumes:
