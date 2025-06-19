@@ -77,93 +77,14 @@
 
 @Library('my-lib@staging') _
 
-
 pipeline {
     agent any
-    triggers {
-        githubPush()
-      }
-    environment {
-        DOCKERHUB_USERNAME=credentials('docker-user')
-        DOCKERHUB_PASSWORD=credentials('docker-pass')
-        JUMP_HOST = credentials('jump-host')
-        JUMP_USER = credentials('jump-user')
-        PRIVATE_HOST = credentials('private-host')
-        PRIVATE_USER = credentials('private-user')
-        PRIVATE_PROJECT_DIR = credentials('private-project-dir')
-        EC2_SSH_PORT = credentials('ec2-ssh-port')
-        WEBHOOK=credentials('webhook')
-    }
-
     stages {
-        stage('Checkout Code') {
+        stage('Test Notification') {
             steps {
-                checkout scm
-            }
-        }
-        stage('login dockerhub'){
-          steps {
-              sh '''
-               echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
-               '''
-          }
-       }
-        stage('docker image tag'){
-            steps{
-                script{
-                    def tag = new Date().format("yyyyMMdd-HHmmss")
-                    env.IMAGE_TAG = tag
-                }
-            }
-        }
-        stage('docker build and push image')
-        {
-            steps{
-                sh 'chmod +x ./foodsite/scripts/*.sh && ./foodsite/scripts/docker_build_push.sh $DOCKERHUB_USERNAME $IMAGE_TAG'
-            }
-        }
-    
-
-        stage('Write SSH Keys') {
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'jump-ssh-key', keyFileVariable: 'JUMP_KEY_FILE'),
-                    sshUserPrivateKey(credentialsId: 'private-ec2-key', keyFileVariable: 'PRIVATE_KEY_FILE')
-                ]) {
-                    sh '''
-                    cp $JUMP_KEY_FILE jump_key.pem
-                    chmod 600 jump_key.pem
-
-                    cp $PRIVATE_KEY_FILE private-ec2.pem
-                    chmod 600 private-ec2.pem
-                    '''
-                }
-            }
-        }
-      
-        stage('Send Code to Jump Server') {
-            steps {
-                sh './foodsite/scripts/ssh_deploy.sh jump_key.pem  private-ec2.pem $JUMP_USER $JUMP_HOST $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR $DOCKERHUB_USERNAME $DOCKERHUB_PASSWORD $IMAGE_TAG'
+                google-chat()
             }
         }
     }
-    post {
-        success {
-           google-chat()
 }
 
-        failure {
-           withCredentials([string(credentialsId: 'webhook',variable:'WEBHOOK')]){
-               script{ def message=[text: "Jenkins Deployment failed for branch :staging  [#${env.BUILD_NUMBER}]"]
-                      writeFile file:'payload.json' , text: groovy.json.JsonOutput.toJson(message)
-                      sh '''
-                       curl -X POST -H "Content-Type: application/json" \
-                        -d @payload.json \
-                        "$WEBHOOK"
-                        '''
-                   
-            }
-        }
-    }}
-
-}
