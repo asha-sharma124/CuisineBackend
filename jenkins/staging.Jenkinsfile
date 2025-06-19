@@ -75,7 +75,7 @@
 //
 
 
-@Library('my-lib@staging') _
+@Library('my-lib@main') _
 
 pipeline {
     agent any
