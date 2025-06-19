@@ -83,7 +83,7 @@ pipeline {
         stage('Test Notification') {
             steps {
                 script {
-            google-chat()
+            googleChat()
         }
             }
         }
