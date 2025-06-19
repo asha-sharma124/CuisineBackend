@@ -75,7 +75,7 @@
 //
 
 
-@Library('my-lib') _
+@Library('my-lib@staging') _
 
 
 pipeline {
