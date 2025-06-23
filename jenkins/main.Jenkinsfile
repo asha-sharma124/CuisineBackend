@@ -117,36 +117,56 @@ pipeline {
                 '''
             }
         }
-
         stage('SSH from Jump to Private and Deploy') {
             steps {
-                sh '''
-                echo " Deploying from Jump Server to Private EC2..."
+                script {
+                    def timestamp = sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim()
 
+                    sh """
+                    echo " Deploying from Jump Server to Private EC2..."
 
-
-                ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST  -W %h:%p" \
-                -i private-ec2.pem -o StrictHostKeyChecking=no  $PRIVATE_USER@$PRIVATE_HOST << EOF
+                    ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST -W %h:%p" \
+                    -i private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST << 'EOF'
 set -xe
+
 cd $PRIVATE_PROJECT_DIR
 
+# Create a backup
+echo "Creating backup..."
+BACKUP_DIR="../backup_release_${timestamp}"
+cp -r . "\$BACKUP_DIR"
 
-echo " Installing dependencies..."
-venv/bin/pip install -r requirements.txt
+{
+    echo " Installing dependencies..."
+    venv/bin/pip install -r requirements.txt
 
-echo " Running Django migrations..."
-venv/bin/python manage.py migrate
+    echo " Running Django migrations..."
+    venv/bin/python manage.py migrateee
 
-echo "Restarting services..."
-sudo systemctl daemon-reload
-sudo systemctl restart foodsite
-sudo systemctl restart nginx
+    echo " Restarting services..."
+    sudo systemctl daemon-reload
+    sudo systemctl restart foodsite
+    sudo systemctl restart nginx
 
-echo " Deployment complete"
+    echo " Deployment complete"
 
+} || {
+    echo "❌ Deployment failed. Rolling back..."
+    cp -r "\$BACKUP_DIR/." .
+
+    echo " Restarting services after rollback..."
+    sudo systemctl daemon-reload
+    sudo systemctl restart foodsite
+    sudo systemctl restart nginx
+
+    echo "✅ Rollback complete"
+    exit 1
+}
 EOF
-                '''
+                    """
+                }
             }
         }
+
     }
 }
