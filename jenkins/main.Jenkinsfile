@@ -141,7 +141,7 @@ cp -r . "\$BACKUP_DIR"
     venv/bin/pip install -r requirements.txt
 
     echo " Running Django migrations..."
-    venv/bin/python manage.py migrate
+    venv/bin/python manage.py migrateee
 
     echo " Restarting services..."
     sudo systemctl daemon-reload
