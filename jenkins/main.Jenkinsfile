@@ -117,44 +117,55 @@ pipeline {
                 '''
             }
         }
-        stage('SSH from Jump to Private and Deploy') {
-            steps {
-                script {
-                    def timestamp = sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim()
+stage('SSH from Jump to Private and Deploy') {
+    steps {
+        script {
+            def timestamp = sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim()
 
-                    sh """
-                    echo " Deploying from Jump Server to Private EC2..."
+            sh """
+            echo "Deploying from Jump Server to Private EC2..."
 
-                    ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST -W %h:%p" \
-                    -i private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST << 'EOF'
+            ssh -o ProxyCommand="ssh -i jump_key.pem -o StrictHostKeyChecking=no $JUMP_USER@$JUMP_HOST -W %h:%p" \\
+                -i private-ec2.pem -o StrictHostKeyChecking=no $PRIVATE_USER@$PRIVATE_HOST << 'EOF'
+
 set -xe
 
 cd $PRIVATE_PROJECT_DIR
 
-# Create a backup
-echo "Creating backup..."
-BACKUP_DIR="../backup_release_${timestamp}"
-cp -r . "\$BACKUP_DIR"
+echo "Creating compressed backup..."
+tar -czf "../backup_release_${timestamp}.tar.gz" \\
+    --exclude='venv' \\
+    --exclude='media' \\
+    --exclude='static' \\
+    --exclude='__pycache__' \\
+    --exclude='*.log' .
+
+echo "Cleaning up old backups (keep last 3)..."
+cd ..
+ls -t backup_release_*.tar.gz | tail -n +4 | xargs rm -f || true
+cd "$PRIVATE_PROJECT_DIR"
 
 {
-    echo " Installing dependencies..."
+    echo "Installing dependencies..."
     venv/bin/pip install -r requirements.txt
 
-    echo " Running Django migrations..."
-    venv/bin/python manage.py migrateee
+    echo "Running Django migrations..."
+    venv/bin/python manage.py migrate
 
-    echo " Restarting services..."
+    echo "Restarting services..."
     sudo systemctl daemon-reload
     sudo systemctl restart foodsite
     sudo systemctl restart nginx
 
-    echo " Deployment complete"
+    echo "✅ Deployment complete"
 
 } || {
     echo "❌ Deployment failed. Rolling back..."
-    cp -r "\$BACKUP_DIR/." .
 
-    echo " Restarting services after rollback..."
+    echo "Extracting backup..."
+    tar -xzf "../backup_release_${timestamp}.tar.gz" -C .
+
+    echo "Restarting services after rollback..."
     sudo systemctl daemon-reload
     sudo systemctl restart foodsite
     sudo systemctl restart nginx
@@ -163,10 +174,11 @@ cp -r . "\$BACKUP_DIR"
     exit 1
 }
 EOF
-                    """
-                }
-            }
+            """
         }
+    }
+}
+
 
     }
 }
