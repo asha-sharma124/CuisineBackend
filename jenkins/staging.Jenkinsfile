@@ -147,10 +147,10 @@ pipeline {
     }
     post {
         success {
-script{
-           writeFile file: 'previous-tag.txt',text: "${env.IMAGE_TAG}"
-           googleChat()}
-}
+                script{
+                           writeFile file: 'previous-tag.txt',text: "${env.IMAGE_TAG}"
+                           googleChat()}
+                    }
 
         failure {
            withCredentials([string(credentialsId: 'webhook',variable:'WEBHOOK')]){
@@ -161,7 +161,7 @@ script{
                         -d @payload.json \
                         "$WEBHOOK"
                         '''
-if(fileExists(previous-tag.txt')){
+if(fileExists('previous-tag.txt')){
 def prevTag=readFile('previous-tag.txt').trim()
 sh """
 chmod +x ./foodsite/scripts/rollback.sh $DOCKERHUB_USERNAME $prevTag  jump_key.pem private-ec2.pem $JUMP_USER $JUMP_HOST \
