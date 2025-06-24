@@ -138,19 +138,7 @@ pipeline {
                 }
             }
         }
-        stage('Read Previous Build Tag') {
-            steps {
-                script {
-                    // Read previous image tag if it exists
-                    env.PREV_IMAGE_TAG = readFile 'previous-tag.txt'
-                    echo "Previous image tag was: ${env.PREV_IMAGE_TAG}"
-                }
-            }
-            when {
-                expression { fileExists('previous-tag.txt') }
-            }
-        }
-
+       
       
         stage('Send Code to Jump Server') {
             steps {
