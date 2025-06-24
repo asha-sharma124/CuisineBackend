@@ -177,6 +177,8 @@ stage('Read Previous Build Tag') {
 if(fileExists('previous-tag.txt')){
 def prevTag=readFile('previous-tag.txt').trim()
 sh """
+
+
 chmod +x ./foodsite/scripts/rollback.sh && ./foodsite/scripts/rollback.sh $DOCKERHUB_USERNAME $prevTag  jump_key.pem private-ec2.pem $JUMP_USER $JUMP_HOST \
                 $PRIVATE_USER $PRIVATE_HOST $PRIVATE_PROJECT_DIR
                 """}
