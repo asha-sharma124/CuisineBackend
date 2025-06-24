@@ -13,8 +13,8 @@ PROJECT_DIR=$9
 ssh -o StrictHostKeyChecking=no -i $JUMP_KEY $JUMP_USER@$JUMP_HOST << EOF
   ssh -o StrictHostKeyChecking=no -i $PRIVATE_KEY $PRIVATE_USER@$PRIVATE_HOST << EOC
     cd $PROJECT_DIR
-    docker pull $DOCKERHUB_USERNAME/foodsite:$PREV_TAG
-    docker stop foodsite || true && docker rm foodsite || true
-    docker run -d --name foodsite -p 80:80 $DOCKERHUB_USERNAME/foodsite:$PREV_TAG
+    sudo docker pull $DOCKERHUB_USERNAME/foodsite:$PREV_TAG
+    sudo docker stop foodsite || true && docker rm foodsite || true
+    sudo docker run -d --name foodsite -p 8000:8000 $DOCKERHUB_USERNAME/foodsite:$PREV_TAG
 EOC
 EOF
