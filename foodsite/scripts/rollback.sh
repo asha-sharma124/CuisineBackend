@@ -12,9 +12,18 @@ PROJECT_DIR=$9
 
 ssh -o StrictHostKeyChecking=no -i $JUMP_KEY $JUMP_USER@$JUMP_HOST << EOF
   ssh -o StrictHostKeyChecking=no -i $PRIVATE_KEY $PRIVATE_USER@$PRIVATE_HOST << EOC
+   
+   
     cd $PROJECT_DIR
+    sed -i "s|\(image: $DOCKERHUB_USERNAME/foodsite:\).*|\1$PREV_TAG|" docker-compose.yml
+
     sudo docker pull $DOCKERHUB_USERNAME/foodsite:$PREV_TAG
-    sudo docker stop foodsite || true && docker rm foodsite || true
-    sudo docker run -d --name foodsite -p 8000:8000 $DOCKERHUB_USERNAME/foodsite:$PREV_TAG
+
+    # Bring down current services
+    sudo docker compose down
+
+    # Restart with previous version
+    sudo docker compose up -d
+   
 EOC
 EOF
